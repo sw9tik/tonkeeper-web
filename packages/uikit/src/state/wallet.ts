@@ -11,7 +11,10 @@ import {
     getActiveWalletConfig,
     setActiveWalletConfig
 } from '@tonkeeper/core/dist/service/wallet/configService';
-import { getWalletState } from '@tonkeeper/core/dist/service/wallet/storeService';
+import {
+    getWalletState,
+    getWalletStateOrDie
+} from '@tonkeeper/core/dist/service/wallet/storeService';
 import {
     getWalletAuthState,
     updateWalletProperty
@@ -82,6 +85,10 @@ export const useMutateLogOut = (publicKey: string, remove = false) => {
     const sdk = useAppSdk();
     const client = useQueryClient();
     return useMutation<void, Error, void>(async () => {
+        if (sdk.notifications) {
+            const wallet = await getWalletStateOrDie(sdk.storage, publicKey);
+            await sdk.notifications.unsubscribe(wallet.active.friendlyAddress);
+        }
         await accountLogOutWallet(sdk.storage, publicKey, remove);
         await client.invalidateQueries([QueryKey.account]);
     });

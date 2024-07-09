@@ -1,4 +1,4 @@
-import { MiniApp, retrieveLaunchParams } from '@tma.js/sdk';
+import { LaunchParams, MiniApp, retrieveLaunchParams } from '@tma.js/sdk';
 import { NotificationService } from '@tonkeeper/core/dist/AppSdk';
 import { APIConfig } from '@tonkeeper/core/dist/entries/apis';
 import { WalletState } from '@tonkeeper/core/dist/entries/wallet';
@@ -18,7 +18,7 @@ const apiConfig = new Configuration({ basePath: 'https://twa-api.tonkeeper.com' 
 const twaApi = new DefaultApi(apiConfig);
 
 export class TwaNotification implements NotificationService {
-    constructor(private miniApp: MiniApp) {}
+    constructor(private miniApp: MiniApp, private launchParams: LaunchParams) {}
 
     get twaInitData() {
         const { initDataRaw } = retrieveLaunchParams();
@@ -53,7 +53,9 @@ export class TwaNotification implements NotificationService {
         signTonConnect: (bufferToSign: Buffer) => Promise<Buffer | Uint8Array>
     ) => {
         try {
-            await this.miniApp.requestWriteAccess();
+            if (!this.launchParams.initData?.user?.allowsWriteToPm) {
+                await this.miniApp.requestWriteAccess();
+            }
         } catch (e) {
             console.error(e);
         }

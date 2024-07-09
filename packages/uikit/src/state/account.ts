@@ -58,6 +58,9 @@ export const useMutateDeleteAll = () => {
     return useMutation<void, Error, void>(async () => {
         // TODO: clean remote storage by api
 
+        if (sdk.notifications) {
+            await sdk.notifications.unsubscribe();
+        }
         // clear don't work on twa desktop
         const account = await getAccountState(sdk.storage);
         for (let key of account.publicKeys) {

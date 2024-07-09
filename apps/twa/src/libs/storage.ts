@@ -9,7 +9,7 @@ export class TwaStorage implements IStorage {
     }
 
     get = async <R>(key: string) => {
-        const value = await this.cloudStorage.get(key, { timeout: 1000 });
+        const value = await this.cloudStorage.get(key, { timeout: 300 });
         if (!value) return null;
         const { payload } = JSON.parse(value) as { payload: R };
         return payload;
